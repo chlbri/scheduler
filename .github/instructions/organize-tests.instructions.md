@@ -333,3 +333,33 @@ test('#03 => second stop', scheduler.stop);
 This applies only to strictly zero-param methods: `scheduler.stop`,
 `counter.reset`, etc. Methods like `scheduler.start(callback?)` have an
 optional param and must be wrapped: `() => scheduler.start()`.
+
+---
+
+## 8. Verification scripts
+
+Use these scripts to audit a test file before and after editing.
+
+### 8.1 Measure inline length of every test candidate
+
+Populate the `tests` list in
+`.github/skills/analyze_tests/analyze_tests.py` with the candidate inline
+forms, then run:
+
+```bash
+python3 .github/skills/analyze_tests/analyze_tests.py
+```
+
+| Mark     | Format to use                                                          |
+| -------- | ---------------------------------------------------------------------- |
+| `SINGLE` | `test('...', () => expect(...));` — no blank line with adjacent SINGLE |
+| `MULTI`  | keep `() => {` block form — blank line before **and** after            |
+
+### 8.2 Detect spacing violations automatically
+
+```bash
+node .github/skills/check_spacing/check_spacing.mjs <path/to/file.test.ts>
+```
+
+Fix every reported violation, then re-run until the output is
+`No spacing violations found.`

@@ -169,7 +169,6 @@ describe('#03 => stop', () => {
     let result: ReturnType<typeof scheduler.stop>;
 
     test('#01 => start', () => scheduler.start());
-
     test('#02 => stop', () => (result = scheduler.stop()));
 
     test('#03 => result is "stopped"', () => {
