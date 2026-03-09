@@ -6,6 +6,10 @@ settings:
 
 importers:
   .:
+    dependencies:
+      '@bemedev/sleep':
+        specifier: ^0.2.1
+        version: 0.2.1
     devDependencies:
       '@bemedev/fsf':
         specifier: ^1.0.1
@@ -144,6 +148,13 @@ packages:
     resolution:
       {
         integrity: sha512-GLbDKkDqPdbO1WldnXZs6Wi1Fhk6lfz2DhCEPWSiezhRym9IMvksyaqdfQyyWvYg3OS1umKjaHOAiEF6++HiTA==,
+      }
+    engines: { node: '>=12' }
+
+  '@bemedev/sleep@0.2.1':
+    resolution:
+      {
+        integrity: sha512-smZtDJXdxhi6EdQS9XGxm47RSr7EVys6KHIlYtsx1bRdqDZ01q22zzil0HIVPjNTaLfK/dCZ8C/R/cdtEB7ukA==,
       }
     engines: { node: '>=12' }
 
@@ -2636,6 +2647,8 @@ snapshots:
       - typescript
 
   '@bemedev/sleep@0.1.2': {}
+
+  '@bemedev/sleep@0.2.1': {}
 
   '@bemedev/vitest-alias@0.0.3(vitest@3.2.4(@types/node@25.3.5))':
     dependencies:
