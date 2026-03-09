@@ -1,3 +1,9 @@
+---
+description:
+  This prompt is used to update documentation files (CHANGELOG.md and
+  README.md) after a version upgrade in a project.
+---
+
 # Update Documentation
 
 Update CHANGELOG.md and README.md after version upgrade.
