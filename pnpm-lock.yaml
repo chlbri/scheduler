@@ -1519,10 +1519,10 @@ packages:
       }
     engines: { node: '>=16' }
 
-  flatted@3.4.0:
+  flatted@3.4.1:
     resolution:
       {
-        integrity: sha512-kC6Bb+ooptOIvWj5B63EQWkF0FEnNjV2ZNkLMLZRDDduIiWeFF4iKnslwhiWxjAdbg4NzTNo6h0qLuvFrcx+Sw==,
+        integrity: sha512-IxfVbRFVlV8V/yRaGzk0UVIcsKKHMSfYw66T/u4nTwlWteQePsxe//LjudR1AMX4tZW3WFCh3Zqa/sjlqpbURQ==,
       }
 
   foreground-child@3.3.1:
@@ -3402,10 +3402,10 @@ snapshots:
 
   flat-cache@4.0.1:
     dependencies:
-      flatted: 3.4.0
+      flatted: 3.4.1
       keyv: 4.5.4
 
-  flatted@3.4.0: {}
+  flatted@3.4.1: {}
 
   foreground-child@3.3.1:
     dependencies:

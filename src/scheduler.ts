@@ -1,5 +1,5 @@
 import { ERROR } from './helpers';
-import type { Cb, Status } from './types';
+import type { Cb, State } from './types';
 
 /**
  * A class that manages a queue of tasks and their execution status.
@@ -8,7 +8,7 @@ class Scheduler {
   readonly #queue: Array<Cb> = [];
   readonly #controller = new AbortController();
   #performeds = 0;
-  #currentStatus: Status = 'idle';
+  #state: State = 'available';
 
   /**
    * Returns the number of tasks that have been performed.
@@ -21,75 +21,47 @@ class Scheduler {
    * Returns the current status of the scheduler.
    *
    * The status can be one of the following:
-   * - 'idle': The scheduler is not initialized or processing any tasks.
-   * - 'initialized': The scheduler has been initialized and is ready to process tasks.
    * - 'processing': The scheduler is currently processing a task.
-   * - 'available': The scheduler is actively available on a task.
+   * - 'available': The scheduler is ready to process tasks.
    * - 'stopped': The scheduler has been stopped and will not process any more tasks.
    */
-  get status() {
-    return this.#currentStatus;
+  get state() {
+    return this.#state;
   }
 
-  /**
-   * Returns a boolean indicating whether the scheduler is currently processing a task.
-   *
-   * The scheduler is considered to be processing if its current status is 'processing'.
-   */
   get #processing() {
-    return this.#currentStatus === 'processing';
+    return this.#state === 'processing';
   }
-
-  start = (callback?: Cb): this => {
-    const check = this.#currentStatus !== 'idle';
-    if (check) return this;
-    this.#currentStatus = 'initialized';
-
-    if (callback) {
-      this.#process(callback);
-    }
-
-    this.#flush();
-    return this;
-  };
 
   /**
    * Schedules a callback function for execution.
    * @param task of type {@linkcode Cb} The callback function to be scheduled for execution.
    */
   #schedule = (task: Cb) => {
-    const check0 =
-      this.#currentStatus === 'stopped' || this.#currentStatus === 'idle';
-    if (check0) return;
-    const check1 = this.#processing || this.#currentStatus === 'idle';
-    if (check1) return this.#queue.push(task);
+    if (this.#processing) return this.#queue.push(task);
     return this.#process(task);
   };
 
   /**
    * Clears the task queue.
-   * @returns 0
    */
   #clear = () => (this.#queue.length = 0);
 
   /**
-   * Stops the scheduler by aborting any ongoing tasks, clearing the task queue, and updating the status to 'stopped'.
+   * Stops the scheduler by aborting any ongoing tasks, clearing the task queue,
+   * and updating the status to 'stopped'.
    *
    * @returns {@linkcode Status} 'stopped'
    */
-  stop = (): Status => {
-    const check =
-      this.#currentStatus === 'stopped' || this.#currentStatus === 'idle';
-    if (check) return this.#currentStatus;
+  stop = (): State => {
+    if (this.#state === 'stopped') return this.#state;
     this.#controller.abort();
     this.#clear();
-    return (this.#currentStatus = 'stopped');
+    return (this.#state = 'stopped');
   };
 
   /**
    * Flushes the task queue by processing each task sequentially.
-   *
-   * The method continues to process tasks until the queue is empty.
    */
   #flush = async () => {
     let nextCallback = this.#queue.shift();
@@ -100,14 +72,12 @@ class Scheduler {
   };
 
   /**
-   * Immediately processes the callback function, updates the status, and increments the performed count.
+   * Immediately processes the callback function, updates the status,
+   * and increments the performed count.
    *
    * @param callback of type {@linkcode Cb} The callback function to be executed immediately.
    */
   #processImmediate = async (callback: Cb) => {
-    const check0 =
-      this.#currentStatus === 'stopped' || this.#currentStatus === 'idle';
-    if (check0) return;
     const result = callback();
 
     if (result instanceof Promise) {
@@ -128,29 +98,22 @@ class Scheduler {
         })
         .finally(() => {
           this.#performeds++;
-          this.#currentStatus = 'available';
+          this.#state = 'available';
           return this.#flush();
         });
     }
 
     this.#performeds++;
-    this.#currentStatus = 'available';
+    this.#state = 'available';
     return this.#flush();
   };
 
   /**
-   * Processes the callback function if the scheduler is in an appropriate state (either 'available' or 'initialized').
-   *
-   * If the scheduler is in the 'available' or 'initialized' state, it updates the status to 'processing', executes the callback function immediately, and waits for its completion before proceeding to the next task in the queue.
-   * @param callback The callback function to be processed.
+   * Processes the callback if the scheduler is in 'available' state.
    */
   #process = async (callback: Cb) => {
-    const check =
-      this.#currentStatus === 'available' ||
-      this.#currentStatus === 'initialized';
-
-    if (check) {
-      this.#currentStatus = 'processing';
+    if (this.#state === 'available') {
+      this.#state = 'processing';
       await this.#processImmediate(callback);
     }
   };
@@ -158,12 +121,15 @@ class Scheduler {
   /**
    * Schedules a callback function for execution, with an option to execute it immediately.
    *
-   * If the `immediate` parameter is set to `true`, the callback function will be executed immediately, bypassing the task queue. Otherwise, it will be added to the task queue for sequential execution.
+   * If `immediate` is `true` the callback bypasses the queue and runs right away.
+   * Otherwise it is enqueued for sequential execution.
+   *
    * @param callback The callback function to be scheduled.
-   * @param immediate A boolean flag indicating whether the callback should be executed immediately.
+   * @param immediate Whether the callback should bypass the queue.
    * @returns A promise that resolves when the callback has been processed.
    */
   schedule = async (callback: Cb, immediate = false) => {
+    if (this.#state === 'stopped') this.#state = 'available';
     return immediate
       ? this.#processImmediate(callback)
       : this.#schedule(callback);
