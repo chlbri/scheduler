@@ -6,6 +6,35 @@
 <details>
 <summary>
 
+## **[0.1.0] - 09/03/2026** => _13:07_
+
+</summary>
+
+- **[BREAKING]** Remove `start()` method — use `schedule()` directly
+- **[BREAKING]** Rename `status` property to `state`
+- **[BREAKING]** Remove `Status` type, replace by exported `State` type
+  (`'processing' | 'available' | 'stopped'`)
+- **[BREAKING]** Initial state changed from `'idle'` to `'available'`
+  (lifecycle simplifié de 5 à 3 états)
+- Refactor `schedule()` to `async`
+- Refactor `schedule()` auto-resets from `'stopped'` to `'available'` on
+  new call
+- Refactor `#queue` and `#controller` as `readonly`
+- Refactor `#clear()` uses `queue.length = 0` instead of creating a new
+  array
+- Rename `CHANGE_LOG.md` → `CHANGELOG.md`
+- Add `.github/instructions/organize-tests.instructions.md`
+- Add `.github/skills/analyze_tests/` skill
+- Add `.github/skills/check_spacing/` skill
+- <u>Test coverage **_100%_**</u>
+
+</details>
+
+<br/>
+
+<details>
+<summary>
+
 ## **[0.0.1] - 09/03/2026** => _03:36_
 
 </summary>

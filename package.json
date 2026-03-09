@@ -1,6 +1,6 @@
 {
   "name": "@bemedev/scheduler",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "A flexible scheduler for managing and executing tasks with advanced timing and state management capabilities",
   "author": {
     "email": "bri_lvi@icloud.com",
