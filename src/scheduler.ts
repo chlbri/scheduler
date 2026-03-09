@@ -163,7 +163,7 @@ class Scheduler {
    * @param immediate A boolean flag indicating whether the callback should be executed immediately.
    * @returns A promise that resolves when the callback has been processed.
    */
-  schedule = (callback: Cb, immediate = false) => {
+  schedule = async (callback: Cb, immediate = false) => {
     return immediate
       ? this.#processImmediate(callback)
       : this.#schedule(callback);

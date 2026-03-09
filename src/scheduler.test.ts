@@ -326,12 +326,14 @@ describe('#04 => schedule (immediate = false)', () => {
   });
 
   describe('#05 => async task rejects', () => {
-    let resolved = false;
     const WAITING = 3000;
 
-    test('#01 => rejects with a string', async () => {
-      const action = async () => {
-        const scheduler = createScheduler();
+    describe('#01 => rejects with a string', () => {
+      const scheduler = createScheduler();
+      let resolved = false;
+      let expectation: () => void;
+
+      test('#01 => create expectation', () => {
         scheduler.start(() => {});
         const asyncTask = async () => {
           await new Promise<void>((_, r) =>
@@ -339,32 +341,68 @@ describe('#04 => schedule (immediate = false)', () => {
           );
           resolved = true;
         };
-        return scheduler.schedule(asyncTask);
-      };
+        scheduler.schedule(asyncTask).catch(e => {
+          expectation = () => expect(e).toBe('str');
+        });
+      });
 
-      const expectation = expect(action).rejects.toThrow('str');
-      await waiter(WAITING);
-      expect(resolved).toBeFalsy();
-      return expectation;
+      test('#02 => Performeds is "1"', () => {
+        expect(scheduler.performeds).toBe(1);
+      });
+
+      test('#03 => await', () => waiter(WAITING));
+
+      test('#04 => performeds is now 2, even error', () => {
+        expect(scheduler.performeds).toBe(2);
+      });
+
+      test('#05 => resolved is still false', () => {
+        expect(resolved).toBeFalsy();
+      });
+
+      test('#06 => throws "str":(string)', () => expectation());
     });
 
-    test('#02 => rejects with an Error', async () => {
-      const action = async () => {
-        const scheduler = createScheduler();
-        scheduler.start(() => {});
+    describe('#02 => rejects with an Error', () => {
+      const scheduler = createScheduler();
+      let resolved = false;
+      let expectationType: () => void;
+      let expectationMessage: () => void;
+
+      test('#01 => create expectation', () => {
+        scheduler.start(nothing);
+
         const asyncTask = async () => {
           await new Promise<void>((_, r) =>
             setTimeout(() => r(new Error('none')), WAITING),
           );
           resolved = true;
         };
-        return scheduler.schedule(asyncTask);
-      };
 
-      const expectation = expect(action).rejects.toThrowError('none');
-      await waiter(WAITING);
-      expect(resolved).toBeFalsy();
-      return expectation;
+        scheduler.schedule(asyncTask).catch(e => {
+          expectationType = () => expect(e).toBeInstanceOf(Error);
+          expectationMessage = () => expect(e.message).toBe('none');
+        });
+      });
+
+      test('#02 => Performeds is "1"', () => {
+        expect(scheduler.performeds).toBe(1);
+      });
+
+      test('#03 => await', () => waiter(WAITING));
+
+      test('#04 => performeds is now 2, even error', () => {
+        expect(scheduler.performeds).toBe(2);
+      });
+
+      test('#05 => resolved is still false', () => {
+        expect(resolved).toBeFalsy();
+      });
+
+      describe('#06 => throws "none":(Error)', () => {
+        test('#01 => is an Error', () => expectationType());
+        test('#02 => message is "none"', () => expectationMessage());
+      });
     });
   });
 });
