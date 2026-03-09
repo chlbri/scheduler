@@ -1,41 +1,43 @@
 import { ERROR } from './helpers';
-import { Cb } from './types';
-
-/**
- * Represents the status of the scheduler.
- *
- * @enum
- * - 'idle': The scheduler is not initialized or processing any tasks.
- * - 'initialized': The scheduler has been initialized and is ready to process tasks.
- * - 'processing': The scheduler is currently processing a task.
- * - 'paused': The scheduler is paused and not processing tasks.
- * - 'available': The scheduler is actively available on a task.
- * - 'stopped': The scheduler has been stopped and will not process any more tasks.
- */
-type Status =
-  | 'idle'
-  | 'initialized'
-  | 'processing'
-  | 'available'
-  | 'stopped';
+import type { Cb, Status } from './types';
 
 /**
  * A class that manages a queue of tasks and their execution status.
  */
 class Scheduler {
-  #queue: Array<Cb> = [];
-
+  readonly #queue: Array<Cb> = [];
+  readonly #controller = new AbortController();
   #performeds = 0;
+  #currentStatus: Status = 'idle';
 
+  /**
+   * Returns the number of tasks that have been performed.
+   */
   get performeds() {
     return this.#performeds;
   }
 
-  #currentStatus: Status = 'idle';
-
-  /* v8 ignore next 3*/
+  /**
+   * Returns the current status of the scheduler.
+   *
+   * The status can be one of the following:
+   * - 'idle': The scheduler is not initialized or processing any tasks.
+   * - 'initialized': The scheduler has been initialized and is ready to process tasks.
+   * - 'processing': The scheduler is currently processing a task.
+   * - 'available': The scheduler is actively available on a task.
+   * - 'stopped': The scheduler has been stopped and will not process any more tasks.
+   */
   get status() {
     return this.#currentStatus;
+  }
+
+  /**
+   * Returns a boolean indicating whether the scheduler is currently processing a task.
+   *
+   * The scheduler is considered to be processing if its current status is 'processing'.
+   */
+  get #processing() {
+    return this.#currentStatus === 'processing';
   }
 
   start = (callback?: Cb): this => {
@@ -51,10 +53,6 @@ class Scheduler {
     return this;
   };
 
-  get #processing() {
-    return this.#currentStatus === 'processing';
-  }
-
   /**
    * Schedules a callback function for execution.
    * @param task of type {@linkcode Cb} The callback function to be scheduled for execution.
@@ -68,8 +66,17 @@ class Scheduler {
     return this.#process(task);
   };
 
-  #clear = () => (this.#queue = []);
+  /**
+   * Clears the task queue.
+   * @returns 0
+   */
+  #clear = () => (this.#queue.length = 0);
 
+  /**
+   * Stops the scheduler by aborting any ongoing tasks, clearing the task queue, and updating the status to 'stopped'.
+   *
+   * @returns {@linkcode Status} 'stopped'
+   */
   stop = (): Status => {
     const check =
       this.#currentStatus === 'stopped' || this.#currentStatus === 'idle';
@@ -79,6 +86,11 @@ class Scheduler {
     return (this.#currentStatus = 'stopped');
   };
 
+  /**
+   * Flushes the task queue by processing each task sequentially.
+   *
+   * The method continues to process tasks until the queue is empty.
+   */
   #flush = async () => {
     let nextCallback = this.#queue.shift();
     while (nextCallback) {
@@ -86,8 +98,6 @@ class Scheduler {
       nextCallback = this.#queue.shift();
     }
   };
-
-  readonly #controller = new AbortController();
 
   /**
    * Immediately processes the callback function, updates the status, and increments the performed count.
@@ -128,12 +138,12 @@ class Scheduler {
     return this.#flush();
   };
 
-  schedule = (callback: Cb, immediate = false) => {
-    return immediate
-      ? this.#processImmediate(callback)
-      : this.#schedule(callback);
-  };
-
+  /**
+   * Processes the callback function if the scheduler is in an appropriate state (either 'available' or 'initialized').
+   *
+   * If the scheduler is in the 'available' or 'initialized' state, it updates the status to 'processing', executes the callback function immediately, and waits for its completion before proceeding to the next task in the queue.
+   * @param callback The callback function to be processed.
+   */
   #process = async (callback: Cb) => {
     const check =
       this.#currentStatus === 'available' ||
@@ -144,7 +154,27 @@ class Scheduler {
       await this.#processImmediate(callback);
     }
   };
+
+  /**
+   * Schedules a callback function for execution, with an option to execute it immediately.
+   *
+   * If the `immediate` parameter is set to `true`, the callback function will be executed immediately, bypassing the task queue. Otherwise, it will be added to the task queue for sequential execution.
+   * @param callback The callback function to be scheduled.
+   * @param immediate A boolean flag indicating whether the callback should be executed immediately.
+   * @returns A promise that resolves when the callback has been processed.
+   */
+  schedule = (callback: Cb, immediate = false) => {
+    return immediate
+      ? this.#processImmediate(callback)
+      : this.#schedule(callback);
+  };
 }
 
 export type { Scheduler };
+
+/**
+ * Creates and returns a new instance of the `Scheduler` class.
+ *
+ * @see {@linkcode Scheduler}
+ */
 export const createScheduler = () => new Scheduler();

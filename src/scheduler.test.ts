@@ -49,8 +49,9 @@ describe('#02 => start', () => {
     const scheduler = createScheduler();
     const counter = makeCounter();
 
-    test('#00 => initial counter.count is 0', () =>
-      expect(counter.count).toBe(0));
+    test('#00 => initial counter.count is 0', () => {
+      expect(counter.count).toBe(0);
+    });
 
     test('#01 => start with callback', () => {
       scheduler.start(counter.task);
@@ -70,14 +71,17 @@ describe('#02 => start', () => {
         scheduler.start(counter.task);
       });
 
-      test('#02 => status remains "available"', () =>
-        expect(scheduler.status).toBe('available'));
+      test('#02 => status remains "available"', () => {
+        expect(scheduler.status).toBe('available');
+      });
 
-      test('#03 => counter.count is still 1', () =>
-        expect(counter.count).toBe(1));
+      test('#03 => counter.count is still 1', () => {
+        expect(counter.count).toBe(1);
+      });
 
-      test('#04 => performeds is still 1', () =>
-        expect(scheduler.performeds).toBe(1));
+      test('#04 => performeds is still 1', () => {
+        expect(scheduler.performeds).toBe(1);
+      });
     });
   });
 
@@ -126,8 +130,9 @@ describe('#02 => start', () => {
     test('#04 => start', () => scheduler.start());
     test('#05 => order is empty', () => expect(order).toEqual([]));
 
-    test('#06 => performeds is 0', () =>
-      expect(scheduler.performeds).toBe(0));
+    test('#06 => performeds is 0', () => {
+      expect(scheduler.performeds).toBe(0);
+    });
   });
 
   describe('#05 => tasks queued after start are flushed (FIFO)', () => {
@@ -163,13 +168,9 @@ describe('#03 => stop', () => {
     const scheduler = createScheduler();
     let result: ReturnType<typeof scheduler.stop>;
 
-    test('#01 => start', () => {
-      scheduler.start();
-    });
+    test('#01 => start', () => scheduler.start());
 
-    test('#02 => stop', () => {
-      result = scheduler.stop();
-    });
+    test('#02 => stop', () => (result = scheduler.stop()));
 
     test('#03 => result is "stopped"', () => {
       expect(result).toBe('stopped');
@@ -180,8 +181,7 @@ describe('#03 => stop', () => {
     const scheduler = createScheduler();
 
     test('#01 => start', () => scheduler.start());
-
-    test('#02 => stop', () => scheduler.stop());
+    test('#02 => stop', scheduler.stop);
 
     test('#03 => status is "stopped"', () => {
       expect(scheduler.status).toBe('stopped');
@@ -195,7 +195,7 @@ describe('#03 => stop', () => {
       expect(scheduler.status).toBe('idle');
     });
 
-    test('#01 => stop', () => scheduler.stop());
+    test('#01 => stop', scheduler.stop);
 
     test('#02 => status is still "idle"', () => {
       expect(scheduler.status).toBe('idle');
@@ -207,7 +207,7 @@ describe('#03 => stop', () => {
     const counter = makeCounter();
 
     test('#01 => start', () => scheduler.start());
-    test('#02 => stop', () => scheduler.stop());
+    test('#02 => stop', scheduler.stop);
 
     test('#03 => schedule', () => {
       scheduler.schedule(counter.task);
@@ -225,7 +225,7 @@ describe('#03 => stop', () => {
     const counter = makeCounter();
     test('#01 => schedule 1', () => scheduler.schedule(counter.task));
     test('#02 => schedule 2', () => scheduler.schedule(counter.task));
-    test('#03 => stop', () => scheduler.stop());
+    test('#03 => stop', scheduler.stop);
     test('#04 => start (no-op)', () => scheduler.start());
     test('#05 => counter.count is 0', () => expect(counter.count).toBe(0));
 
@@ -318,11 +318,12 @@ describe('#04 => schedule (immediate = false)', () => {
     });
 
     test('#04 => resolved is false', () => expect(resolved).toBe(false));
-    test('#05 => await 20ms', async () => waiter(20));
+    test('#05 => await 20ms', () => waiter(20));
     test('#06 => resolved is true', () => expect(resolved).toBe(true));
 
-    test('#07 => performeds is 2', () =>
-      expect(scheduler.performeds).toBe(2));
+    test('#07 => performeds is 2', () => {
+      expect(scheduler.performeds).toBe(2);
+    });
   });
 
   describe('#05 => async task rejects', () => {
@@ -414,7 +415,7 @@ describe('#05 => schedule (immediate = true)', () => {
       expect(resolved).toBe(false);
     });
 
-    test('#05 => await 10ms', async () => waiter(10));
+    test('#05 => await 10ms', () => waiter(10));
     test('#06 => resolved is true', () => expect(resolved).toBe(true));
 
     test('#07 => performeds is 1', () => {
@@ -426,7 +427,7 @@ describe('#05 => schedule (immediate = true)', () => {
     const scheduler = createScheduler();
     const counter = makeCounter();
     test('#01 => start', () => scheduler.start());
-    test('#02 => stop', () => scheduler.stop());
+    test('#02 => stop', scheduler.stop);
 
     test('#03 => schedule immediate', () => {
       scheduler.schedule(counter.task, true);
@@ -448,7 +449,7 @@ describe('#05 => schedule (immediate = true)', () => {
       scheduler.schedule(counter.task, true);
     });
 
-    test('#03 => stop', () => scheduler.stop());
+    test('#03 => stop', scheduler.stop);
     test('#04 => counter.count is 1', () => expect(counter.count).toBe(1));
 
     test('#05 => performeds is 1', () => {
@@ -470,7 +471,7 @@ describe('#05 => schedule (immediate = true)', () => {
       expect(counter.count).toBe(0);
     });
 
-    test('#03 => await 50ms', async () => waiter(50));
+    test('#03 => await 50ms', () => waiter(50));
     test('#04 => stop', scheduler.stop);
 
     test('#05 => counter.count is still 0', () => {
@@ -481,16 +482,14 @@ describe('#05 => schedule (immediate = true)', () => {
       expect(scheduler.performeds).toBe(1);
     });
 
-    test('#07 => await remaining time', async () => waiter(500));
+    test('#07 => await remaining time', () => waiter(500));
   });
 
   describe('#06 => async fully waited before stop', () => {
     const scheduler = createScheduler();
     const counter = makeCounter();
 
-    test('#01 => start', () => {
-      scheduler.start();
-    });
+    test('#01 => start', () => scheduler.start());
 
     test('#02 => schedule async immediate (100ms)', () => {
       scheduler.schedule(counter.asyncTaskWithTime(100), true);
@@ -503,12 +502,11 @@ describe('#05 => schedule (immediate = true)', () => {
       await waiter(100);
     });
 
-    test('#04 => stop', () => {
-      scheduler.stop();
-    });
+    test('#04 => stop', scheduler.stop);
 
-    test('#05 => status is "stopped"', () =>
-      expect(scheduler.status).toBe('stopped'));
+    test('#05 => status is "stopped"', () => {
+      expect(scheduler.status).toBe('stopped');
+    });
 
     test('#06 => counter.count is 1', () => expect(counter.count).toBe(1));
 
@@ -533,7 +531,7 @@ describe('#06 => Status transitions, test processing status', () => {
     scheduler.schedule(longTask);
   });
 
-  test('#03 => await 5000ms', async () => waiter(5000));
+  test('#03 => await 5000ms', () => waiter(5000));
 
   test('#04 => status during task was "processing"', () => {
     expect(statusDuringTask[0]).toBe('processing');
@@ -604,7 +602,7 @@ describe('#08 => Edge cases', () => {
       expect(mock).toHaveBeenCalledTimes(0);
     });
 
-    test('#09 => await 10ms', async () => waiter(10));
+    test('#09 => await 10ms', () => waiter(10));
 
     test('#10 => mock called 3 times', () => {
       expect(mock).toHaveBeenCalledTimes(3);
@@ -657,8 +655,8 @@ describe('#08 => Edge cases', () => {
   describe('#03 => stop on already-stopped scheduler is idempotent', () => {
     const scheduler = createScheduler();
     test('#01 => start', () => scheduler.start());
-    test('#02 => first stop', () => scheduler.stop());
-    test('#03 => second stop', () => scheduler.stop());
+    test('#02 => first stop', scheduler.stop);
+    test('#03 => second stop', scheduler.stop);
 
     test('#04 => status is "stopped"', () => {
       expect(scheduler.status).toBe('stopped');
