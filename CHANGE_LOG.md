@@ -3,9 +3,33 @@
 <br/>
 <br/>
 
-### Version [0.0.1] --> _date & hour_
+<details>
+<summary>
 
-- ✨ Première version de la bibliothèque
+## **[0.0.1] - 09/03/2026** => _03:36_
+
+</summary>
+
+- Add `Scheduler` class with status lifecycle management (`idle` →
+  `initialized` → `processing` → `available` → `stopped`)
+- Add `createScheduler()` factory function
+- Add `start(callback?)` method to initialize the scheduler with an
+  optional initial task
+- Add `schedule(callback, immediate?)` method for task queuing and
+  execution
+- Add `stop()` method with `AbortController` support for cancelling
+  in-flight async tasks
+- Add `performeds` counter tracking the number of successfully executed
+  tasks
+- Add `Cb` type for callback definitions
+- Add `ERROR` sentinel for internal abort detection
+- Add `fixtures.ts` with `makeCounter()` and `nothing` test helpers
+- Add documentation for `@bemedev/vitest-extended`
+- Update `vitest.config.ts` coverage exclusions
+- Update dependencies: add `@bemedev/sleep`, `@bemedev/vitest-extended`
+- <u>Test coverage **_100%_**</u>
+
+</details>
 
 <br/>
 

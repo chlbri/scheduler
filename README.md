@@ -1,6 +1,89 @@
-# Beatifull lib
+# @bemedev/scheduler
 
-A beautifull description
+A flexible scheduler for managing and executing tasks with advanced timing
+and state management capabilities.
+
+<br/>
+
+## Installation
+
+```bash
+pnpm add @bemedev/scheduler
+```
+
+## Usage
+
+```typescript
+import { createScheduler } from '@bemedev/scheduler';
+
+const scheduler = createScheduler();
+
+// Initialize the scheduler (optionally with an initial task)
+scheduler.start();
+
+// Schedule a synchronous task
+scheduler.schedule(() => {
+  console.log('Task executed');
+});
+
+// Schedule an asynchronous task
+scheduler.schedule(async () => {
+  await fetch('/api/data');
+});
+
+// Schedule with immediate execution (bypasses the queue)
+scheduler.schedule(() => console.log('Immediate!'), true);
+
+// Stop the scheduler (cancels pending async tasks)
+scheduler.stop();
+
+// Check scheduler state
+console.log(scheduler.performeds); // number of tasks executed
+console.log(scheduler.status); // current status
+```
+
+<br/>
+
+## API
+
+### `createScheduler()`
+
+Creates and returns a new `Scheduler` instance.
+
+### `scheduler.start(callback?)`
+
+Initializes the scheduler. Optionally executes an initial task immediately.
+No-op if already started. Returns `this`.
+
+### `scheduler.schedule(callback, immediate?)`
+
+Schedules a task for execution.
+
+| Parameter   | Type                        | Default | Description                                                           |
+| ----------- | --------------------------- | ------- | --------------------------------------------------------------------- |
+| `callback`  | `() => any \| Promise<any>` | —       | The task to execute                                                   |
+| `immediate` | `boolean`                   | `false` | If `true`, bypasses the queue and runs immediately with abort support |
+
+### `scheduler.stop()`
+
+Stops the scheduler and cancels any in-flight async tasks via
+`AbortController`. Returns the final status `'stopped'`.
+
+### `scheduler.status`
+
+Read-only. Current status of the scheduler:
+
+| Value           | Description                |
+| --------------- | -------------------------- |
+| `'idle'`        | Not yet started            |
+| `'initialized'` | Started, ready to process  |
+| `'processing'`  | Currently executing a task |
+| `'available'`   | Ready for the next task    |
+| `'stopped'`     | Permanently stopped        |
+
+### `scheduler.performeds`
+
+Read-only. Number of tasks successfully executed.
 
 <br/>
 
@@ -11,14 +94,17 @@ MIT
 ## CHANGE_LOG
 
 <details>
-
 <summary>
-...
+
+## **[0.0.1] - 09/03/2026** => _03:36_
+
 </summary>
 
-### Version [0.0.1] --> _date & hour_
-
-- ✨ Première version de la bibliothèque
+- Add `Scheduler` class with full lifecycle management
+- Add `createScheduler()` factory function
+- Add `start`, `schedule`, `stop` methods
+- Add async task support with `AbortController`
+- <u>Test coverage **_100%_**</u>
 
 </details>
 
